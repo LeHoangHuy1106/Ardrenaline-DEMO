@@ -1,45 +1,537 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+<head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity Web Player | Adrenaline Racing</title>
-  </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=1920 height=1080 tabindex="-1" style="width: 1920px; height: 1080px; background: #231F20"></canvas>
-    <script src="Build/Adrenaline racing.loader.js"></script>
-    <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
+    <meta
+        http-equiv="Content-Type"
+        content="text/html; charset=utf-8"
+    >
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
+    <meta
+        name="viewport"
+        content="
+            width=device-width,
+            height=device-height,
+            initial-scale=1.0,
+            maximum-scale=1.0,
+            user-scalable=no,
+            shrink-to-fit=yes
+        "
+    >
 
-        document.body.style.textAlign = "left";
+    <title>Adrenaline Racing</title>
 
-      }
+    <style>
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
+            background: #000;
+        }
+
+        body {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+
+            width: 100vw;
+            height: 100vh;
+
+            overscroll-behavior: none;
+            touch-action: none;
+        }
+
+        #unity-container {
+            position: fixed;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            margin: 0;
+            padding: 0;
+
+            overflow: hidden;
+
+            background: #000;
+        }
+
+        #unity-canvas {
+            display: block;
+
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            margin: 0;
+            padding: 0;
+
+            border: 0;
+            outline: none;
+
+            background: #231F20;
+        }
+
+        /* =========================
+           Loading
+        ========================== */
+
+        #loading {
+            position: absolute;
+
+            top: 0;
+            left: 0;
+
+            width: 100%;
+            height: 100%;
+
+            display: flex;
+            flex-direction: column;
+
+            justify-content: center;
+            align-items: center;
+
+            z-index: 10;
+
+            background: #000;
+
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        #loading-title {
+            margin-bottom: 20px;
+
+            font-size: 24px;
+            font-weight: 700;
+
+            letter-spacing: 2px;
+        }
+
+        #progress-background {
+            width: min(
+                420px,
+                70vw
+            );
+
+            height: 12px;
+
+            overflow: hidden;
+
+            border-radius: 10px;
+
+            background: rgba(
+                255,
+                255,
+                255,
+                0.2
+            );
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+
+            border-radius: 10px;
+
+            background: white;
+
+            transition: width 0.1s linear;
+        }
+
+        #progress-text {
+            margin-top: 12px;
+
+            font-size: 14px;
+
+            opacity: 0.8;
+        }
+
+        /* =========================
+           Fullscreen button
+        ========================== */
+
+        #fullscreen-button {
+            position: absolute;
+
+            right: 16px;
+            bottom: 16px;
+
+            z-index: 20;
+
+            width: 44px;
+            height: 44px;
+
+            display: none;
+
+            border: 1px solid rgba(
+                255,
+                255,
+                255,
+                0.25
+            );
+
+            border-radius: 8px;
+
+            background: rgba(
+                0,
+                0,
+                0,
+                0.45
+            );
+
+            color: white;
+
+            font-size: 20px;
+
+            cursor: pointer;
+
+            user-select: none;
+
+            backdrop-filter: blur(6px);
+        }
+
+        #fullscreen-button:hover {
+            background: rgba(
+                0,
+                0,
+                0,
+                0.7
+            );
+        }
+
+        @media (
+            max-width: 768px
+        ) {
+            #fullscreen-button {
+                right: 8px;
+                bottom: 8px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="unity-container">
+
+    <canvas
+        id="unity-canvas"
+        tabindex="-1"
+    ></canvas>
+
+    <div id="loading">
+
+        <div id="loading-title">
+            ADRENALINE RACING
+        </div>
+
+        <div id="progress-background">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div id="progress-text">
+            Loading 0%
+        </div>
+
+    </div>
+
+    <button
+        id="fullscreen-button"
+        title="Fullscreen"
+    >
+        ⛶
+    </button>
+
+</div>
+
+
+<script>
+
+    const canvas =
+        document.querySelector(
+            "#unity-canvas"
+        );
+
+    const loading =
+        document.querySelector(
+            "#loading"
+        );
+
+    const progressBar =
+        document.querySelector(
+            "#progress-bar"
+        );
+
+    const progressText =
+        document.querySelector(
+            "#progress-text"
+        );
+
+    const fullscreenButton =
+        document.querySelector(
+            "#fullscreen-button"
+        );
+
+
+    /* =========================
+       Unity build paths
+    ========================== */
+
+    const buildUrl =
+        "Build";
+
+    const loaderUrl =
+        buildUrl +
+        "/Adrenaline racing.loader.js";
+
+
+    const config = {
+
         arguments: [],
-        dataUrl: "Build/Adrenaline racing.data.unityweb",
-        frameworkUrl: "Build/Adrenaline racing.framework.js.unityweb",
-        codeUrl: "Build/Adrenaline racing.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "Adrenaline Racing",
-        productName: "Adrenaline Racing",
-        productVersion: "0.1.0",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
-      }).then((unityInstance) => {
-      }).catch((message) => {
-        alert(message);
-      });
-    </script>
-  </body>
+
+        dataUrl:
+            buildUrl +
+            "/Adrenaline racing.data.unityweb",
+
+        frameworkUrl:
+            buildUrl +
+            "/Adrenaline racing.framework.js.unityweb",
+
+        codeUrl:
+            buildUrl +
+            "/Adrenaline racing.wasm.unityweb",
+
+        streamingAssetsUrl:
+            "StreamingAssets",
+
+        companyName:
+            "Adrenaline Racing",
+
+        productName:
+            "Adrenaline Racing",
+
+        productVersion:
+            "0.1.0",
+
+        /*
+         * Unity tự resize render target
+         * theo kích thước canvas.
+         */
+        matchWebGLToCanvasSize:
+            true,
+
+        /*
+         * Giới hạn DPI để máy Retina /
+         * điện thoại không render quá nặng.
+         *
+         * Có thể đổi thành:
+         *
+         * window.devicePixelRatio
+         *
+         * nếu muốn nét tối đa.
+         */
+        devicePixelRatio:
+            Math.min(
+                window.devicePixelRatio || 1,
+                2
+            )
+    };
+
+
+    /* =========================
+       Resize canvas
+    ========================== */
+
+    function resizeCanvas() {
+
+        canvas.style.width =
+            window.innerWidth +
+            "px";
+
+        canvas.style.height =
+            window.innerHeight +
+            "px";
+    }
+
+
+    resizeCanvas();
+
+
+    window.addEventListener(
+        "resize",
+        resizeCanvas
+    );
+
+
+    window.addEventListener(
+        "orientationchange",
+        function () {
+
+            setTimeout(
+                resizeCanvas,
+                150
+            );
+        }
+    );
+
+
+    /* =========================
+       Prevent unwanted gestures
+    ========================== */
+
+    document.addEventListener(
+        "contextmenu",
+        function (event) {
+
+            event.preventDefault();
+        }
+    );
+
+
+    document.addEventListener(
+        "touchmove",
+        function (event) {
+
+            event.preventDefault();
+        },
+        {
+            passive: false
+        }
+    );
+
+
+    /* =========================
+       Load Unity loader
+    ========================== */
+
+    const script =
+        document.createElement(
+            "script"
+        );
+
+
+    script.src =
+        loaderUrl;
+
+
+    script.onload =
+        function () {
+
+            createUnityInstance(
+                canvas,
+                config,
+                function (progress) {
+
+                    const percent =
+                        Math.round(
+                            progress * 100
+                        );
+
+                    progressBar.style.width =
+                        percent + "%";
+
+                    progressText.textContent =
+                        "Loading " +
+                        percent +
+                        "%";
+                }
+            )
+            .then(
+                function (
+                    unityInstance
+                ) {
+
+                    loading.style.display =
+                        "none";
+
+                    fullscreenButton.style.display =
+                        "block";
+
+
+                    fullscreenButton.onclick =
+                        function () {
+
+                            unityInstance
+                                .SetFullscreen(1);
+                        };
+
+
+                    /*
+                     * Resize lại sau khi Unity
+                     * load hoàn tất.
+                     */
+                    resizeCanvas();
+                }
+            )
+            .catch(
+                function (
+                    message
+                ) {
+
+                    console.error(
+                        message
+                    );
+
+                    loading.innerHTML =
+                        `
+                        <div
+                            style="
+                                max-width: 700px;
+                                padding: 30px;
+                                text-align: center;
+                                line-height: 1.5;
+                            "
+                        >
+                            <h2>
+                                Failed to load game
+                            </h2>
+
+                            <div>
+                                ${message}
+                            </div>
+                        </div>
+                        `;
+                }
+            );
+        };
+
+
+    script.onerror =
+        function () {
+
+            loading.innerHTML =
+                `
+                <div
+                    style="
+                        padding: 30px;
+                        text-align: center;
+                    "
+                >
+                    Failed to load Unity loader.
+                </div>
+                `;
+        };
+
+
+    document.body.appendChild(
+        script
+    );
+
+</script>
+
+</body>
 </html>
