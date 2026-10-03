@@ -1,537 +1,207 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html>
 <head>
-    <meta charset="utf-8">
-    <meta
-        http-equiv="Content-Type"
-        content="text/html; charset=utf-8"
-    >
+  <meta charset="utf-8">
 
-    <meta
-        name="viewport"
-        content="
-            width=device-width,
-            height=device-height,
-            initial-scale=1.0,
-            maximum-scale=1.0,
-            user-scalable=no,
-            shrink-to-fit=yes
-        "
-    >
+  <title>Ardenaline Race</title>
 
-    <title>Adrenaline Racing</title>
+  <!-- MOBILE VIEWPORT -->
+  <meta name="viewport"
+        content="viewport-fit=cover,width=device-width,user-scalable=no,initial-scale=1,minimum-scale=1,maximum-scale=1,minimal-ui=true"/>
 
-    <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
+  <!-- IOS -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
 
-            background: #000;
-        }
+  <!-- ANDROID -->
+  <meta name="mobile-web-app-capable" content="yes">
 
-        body {
-            position: fixed;
+  <!-- RENDER -->
+  <meta name="renderer" content="webkit"/>
+  <meta name="force-rendering" content="webkit"/>
 
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+  <!-- IE EDGE -->
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
 
-            width: 100vw;
-            height: 100vh;
+  <!-- TAP -->
+  <meta name="msapplication-tap-highlight" content="no">
 
-            overscroll-behavior: none;
-            touch-action: none;
-        }
+  <!-- FULLSCREEN -->
+  <meta name="full-screen" content="yes"/>
+  <meta name="x5-fullscreen" content="true"/>
+  <meta name="360-fullscreen" content="true"/>
 
-        #unity-container {
-            position: fixed;
+  <!-- APP MODE -->
+  <meta name="x5-page-mode" content="app">
 
-            top: 0;
-            left: 0;
+  <!-- ORIENTATION -->
+  <meta name="screen-orientation" content="">
+  <meta name="x5-orientation" content="">
 
-            width: 100%;
-            height: 100%;
+  <!-- FAVICON -->
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./favicon-16x16.png">
+  <link rel="manifest" href="./site.webmanifest">
 
-            margin: 0;
-            padding: 0;
+  <!-- STYLES -->
+  <link rel="stylesheet" type="text/css" href="./screen/screen.css"/>
+  <link rel="stylesheet" type="text/css" href="./style.css"/>
 
-            overflow: hidden;
-
-            background: #000;
-        }
-
-        #unity-canvas {
-            display: block;
-
-            position: absolute;
-
-            top: 0;
-            left: 0;
-
-            width: 100%;
-            height: 100%;
-
-            margin: 0;
-            padding: 0;
-
-            border: 0;
-            outline: none;
-
-            background: #231F20;
-        }
-
-        /* =========================
-           Loading
-        ========================== */
-
-        #loading {
-            position: absolute;
-
-            top: 0;
-            left: 0;
-
-            width: 100%;
-            height: 100%;
-
-            display: flex;
-            flex-direction: column;
-
-            justify-content: center;
-            align-items: center;
-
-            z-index: 10;
-
-            background: #000;
-
-            font-family: Arial, sans-serif;
-            color: white;
-        }
-
-        #loading-title {
-            margin-bottom: 20px;
-
-            font-size: 24px;
-            font-weight: 700;
-
-            letter-spacing: 2px;
-        }
-
-        #progress-background {
-            width: min(
-                420px,
-                70vw
-            );
-
-            height: 12px;
-
-            overflow: hidden;
-
-            border-radius: 10px;
-
-            background: rgba(
-                255,
-                255,
-                255,
-                0.2
-            );
-        }
-
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-
-            border-radius: 10px;
-
-            background: white;
-
-            transition: width 0.1s linear;
-        }
-
-        #progress-text {
-            margin-top: 12px;
-
-            font-size: 14px;
-
-            opacity: 0.8;
-        }
-
-        /* =========================
-           Fullscreen button
-        ========================== */
-
-        #fullscreen-button {
-            position: absolute;
-
-            right: 16px;
-            bottom: 16px;
-
-            z-index: 20;
-
-            width: 44px;
-            height: 44px;
-
-            display: none;
-
-            border: 1px solid rgba(
-                255,
-                255,
-                255,
-                0.25
-            );
-
-            border-radius: 8px;
-
-            background: rgba(
-                0,
-                0,
-                0,
-                0.45
-            );
-
-            color: white;
-
-            font-size: 20px;
-
-            cursor: pointer;
-
-            user-select: none;
-
-            backdrop-filter: blur(6px);
-        }
-
-        #fullscreen-button:hover {
-            background: rgba(
-                0,
-                0,
-                0,
-                0.7
-            );
-        }
-
-        @media (
-            max-width: 768px
-        ) {
-            #fullscreen-button {
-                right: 8px;
-                bottom: 8px;
-            }
-        }
-    </style>
 </head>
 
-<body>
+<body style="overflow:hidden; margin:0; padding:0; background:#000;">
 
-<div id="unity-container">
+  <!-- FULLSCREEN GUIDE -->
 
-    <canvas
-        id="unity-canvas"
-        tabindex="-1"
-    ></canvas>
+  <div id="swipe-up-full-screen"
+       style="visibility:hidden; display:block;">
 
-    <div id="loading">
+      <div class="swipe-up-instruction">
 
-        <div id="loading-title">
-            ADRENALINE RACING
-        </div>
+          <div class="swipe-up-finger">
+              <img src="./swipe-up-icon.png">
+          </div>
 
-        <div id="progress-background">
-            <div id="progress-bar"></div>
-        </div>
+          <div class="tips-text">
+              Swipe up to enter fullscreen mode
+          </div>
 
-        <div id="progress-text">
-            Loading 0%
-        </div>
+      </div>
+  </div>
 
-    </div>
+  <!-- ROTATE DEVICE -->
 
-    <button
-        id="fullscreen-button"
-        title="Fullscreen"
-    >
-        ⛶
-    </button>
+  <div id="portrait-to-landscape"
+       style="display:none;">
 
-</div>
+      <div class="portrait-gif">
+          <img src="./rotate-device.gif">
+      </div>
 
+      <div class="portrait-text">
+          Please rotate your device to landscape mode
+      </div>
 
+  </div>
+
+  <div id="landscape-to-portrait"
+       style="display:none;">
+
+      <div class="landscape-gif">
+          <img src="./rotate-device.gif">
+      </div>
+
+      <div class="landscape-text">
+          Please rotate your device to portrait mode
+      </div>
+
+  </div>
+
+  <!-- GAME -->
+
+  <div id="GameDiv"
+       cc_exact_fit_screen="true">
+
+      <div id="Cocos3dGameContainer">
+
+          <canvas id="GameCanvas"
+                  oncontextmenu="event.preventDefault()"
+                  tabindex="99">
+          </canvas>
+
+      </div>
+  </div>
+
+  <!-- POLYFILLS -->
+  <script src="src/polyfills.bundle.js"
+          charset="utf-8">
+  </script>
+
+  <!-- SYSTEM -->
+  <script src="src/system.bundle.js"
+          charset="utf-8">
+  </script>
+
+  <!-- IMPORT MAP -->
+  <script src="src/import-map.json"
+          type="systemjs-importmap"
+          charset="utf-8">
+  </script>
+
+  <!-- GAME ENTRY -->
+  <script>
+      System.import('./index.js')
+      .catch(function(err) {
+
+          console.error(err);
+
+      });
+  </script>
+
+  <!-- GLOBAL -->
+  <script src="public/global-deps-bundle.js"
+          charset="utf-8">
+  </script>
+
+  <!-- SCREEN CONTROLLER -->
+  <script src="screen/screen.js"
+          charset="utf-8">
+  </script>
 <script>
+(function () {
 
-    const canvas =
-        document.querySelector(
-            "#unity-canvas"
-        );
+    let lastTap = 0;
 
-    const loading =
-        document.querySelector(
-            "#loading"
-        );
+    async function enterFullscreen() {
 
-    const progressBar =
-        document.querySelector(
-            "#progress-bar"
-        );
+        const elem = document.documentElement;
 
-    const progressText =
-        document.querySelector(
-            "#progress-text"
-        );
+        try {
 
-    const fullscreenButton =
-        document.querySelector(
-            "#fullscreen-button"
-        );
+            if (!document.fullscreenElement) {
 
+                if (elem.requestFullscreen) {
+                    await elem.requestFullscreen();
+                }
+                else if (elem.webkitRequestFullscreen) {
+                    await elem.webkitRequestFullscreen();
+                }
+                else if (elem.msRequestFullscreen) {
+                    await elem.msRequestFullscreen();
+                }
 
-    /* =========================
-       Unity build paths
-    ========================== */
+            }
 
-    const buildUrl =
-        "Build";
+        } catch (e) {
 
-    const loaderUrl =
-        buildUrl +
-        "/Adrenaline racing.loader.js";
+            console.log("Fullscreen failed:", e);
 
+        }
 
-    const config = {
-
-        arguments: [],
-
-        dataUrl:
-            buildUrl +
-            "/Adrenaline racing.data.unityweb",
-
-        frameworkUrl:
-            buildUrl +
-            "/Adrenaline racing.framework.js.unityweb",
-
-        codeUrl:
-            buildUrl +
-            "/Adrenaline racing.wasm.unityweb",
-
-        streamingAssetsUrl:
-            "StreamingAssets",
-
-        companyName:
-            "Adrenaline Racing",
-
-        productName:
-            "Adrenaline Racing",
-
-        productVersion:
-            "0.1.0",
-
-        /*
-         * Unity tự resize render target
-         * theo kích thước canvas.
-         */
-        matchWebGLToCanvasSize:
-            true,
-
-        /*
-         * Giới hạn DPI để máy Retina /
-         * điện thoại không render quá nặng.
-         *
-         * Có thể đổi thành:
-         *
-         * window.devicePixelRatio
-         *
-         * nếu muốn nét tối đa.
-         */
-        devicePixelRatio:
-            Math.min(
-                window.devicePixelRatio || 1,
-                2
-            )
-    };
-
-
-    /* =========================
-       Resize canvas
-    ========================== */
-
-    function resizeCanvas() {
-
-        canvas.style.width =
-            window.innerWidth +
-            "px";
-
-        canvas.style.height =
-            window.innerHeight +
-            "px";
     }
 
+    document.addEventListener("touchend", function (event) {
 
-    resizeCanvas();
+        const currentTime = new Date().getTime();
+        const tapLength = currentTime - lastTap;
 
+        if (tapLength < 300 && tapLength > 0) {
 
-    window.addEventListener(
-        "resize",
-        resizeCanvas
-    );
-
-
-    window.addEventListener(
-        "orientationchange",
-        function () {
-
-            setTimeout(
-                resizeCanvas,
-                150
-            );
-        }
-    );
-
-
-    /* =========================
-       Prevent unwanted gestures
-    ========================== */
-
-    document.addEventListener(
-        "contextmenu",
-        function (event) {
+            enterFullscreen();
 
             event.preventDefault();
+
         }
-    );
 
+        lastTap = currentTime;
 
-    document.addEventListener(
-        "touchmove",
-        function (event) {
+    }, false);
 
-            event.preventDefault();
-        },
-        {
-            passive: false
-        }
-    );
-
-
-    /* =========================
-       Load Unity loader
-    ========================== */
-
-    const script =
-        document.createElement(
-            "script"
-        );
-
-
-    script.src =
-        loaderUrl;
-
-
-    script.onload =
-        function () {
-
-            createUnityInstance(
-                canvas,
-                config,
-                function (progress) {
-
-                    const percent =
-                        Math.round(
-                            progress * 100
-                        );
-
-                    progressBar.style.width =
-                        percent + "%";
-
-                    progressText.textContent =
-                        "Loading " +
-                        percent +
-                        "%";
-                }
-            )
-            .then(
-                function (
-                    unityInstance
-                ) {
-
-                    loading.style.display =
-                        "none";
-
-                    fullscreenButton.style.display =
-                        "block";
-
-
-                    fullscreenButton.onclick =
-                        function () {
-
-                            unityInstance
-                                .SetFullscreen(1);
-                        };
-
-
-                    /*
-                     * Resize lại sau khi Unity
-                     * load hoàn tất.
-                     */
-                    resizeCanvas();
-                }
-            )
-            .catch(
-                function (
-                    message
-                ) {
-
-                    console.error(
-                        message
-                    );
-
-                    loading.innerHTML =
-                        `
-                        <div
-                            style="
-                                max-width: 700px;
-                                padding: 30px;
-                                text-align: center;
-                                line-height: 1.5;
-                            "
-                        >
-                            <h2>
-                                Failed to load game
-                            </h2>
-
-                            <div>
-                                ${message}
-                            </div>
-                        </div>
-                        `;
-                }
-            );
-        };
-
-
-    script.onerror =
-        function () {
-
-            loading.innerHTML =
-                `
-                <div
-                    style="
-                        padding: 30px;
-                        text-align: center;
-                    "
-                >
-                    Failed to load Unity loader.
-                </div>
-                `;
-        };
-
-
-    document.body.appendChild(
-        script
-    );
-
+})();
 </script>
-
+<script crossorigin="anonymous"
+src="https://connect.facebook.net/en_US/sdk.js"></script>
 </body>
 </html>
